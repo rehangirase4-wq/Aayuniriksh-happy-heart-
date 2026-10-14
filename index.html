@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AayuNiriksh | Heart Patient Monitor</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ECG Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div>
+    <h1>❤️ AayuNiriksh</h1>
+    <p>Smart Heart Patient Monitoring System</p>
+  </div>
+
+  <div class="status">
+    <span id="connectionDot"></span>
+    <span id="connectionText">Device Connected</span>
+  </div>
+</header>
+
+
+<main class="container">
+
+  <!-- Patient -->
+  <section class="patient-card">
+    <div>
+      <h2>Patient Dashboard</h2>
+      <p id="dateTime">Loading...</p>
+    </div>
+
+    <div class="patient-info">
+      <strong>Patient:</strong>
+      <span id="patientName">Patient 01</span>
+    </div>
+  </section>
+
+
+  <!-- Emergency -->
+  <section id="emergencyBox" class="emergency normal">
+    <div>
+      <h2 id="emergencyTitle">🟢 Patient Status: NORMAL</h2>
+      <p id="emergencyMessage">
+        All monitored parameters are currently within the configured range.
+      </p>
+    </div>
+
+    <button onclick="emergencyCall()">📞 Emergency</button>
+  </section>
+
+
+  <!-- Health Cards -->
+  <section class="health-grid">
+
+    <div class="health-card heart">
+      <div class="icon">❤️</div>
+      <h3>Heart Rate</h3>
+      <div class="value">
+        <span id="bpm">74</span>
+        <small>BPM</small>
+      </div>
+      <p id="bpmStatus">Normal</p>
+    </div>
+
+
+    <div class="health-card">
+      <div class="icon">🩸</div>
+      <h3>SpO₂</h3>
+      <div class="value">
+        <span id="spo2">98</span>
+        <small>%</small>
+      </div>
+      <p id="spo2Status">Normal</p>
+    </div>
+
+
+    <div class="health-card">
+      <div class="icon">🌡️</div>
+      <h3>Temperature</h3>
+      <div class="value">
+        <span id="temperature">36.7</span>
+        <small>°C</small>
+      </div>
+      <p id="tempStatus">Normal</p>
+    </div>
+
+
+    <div class="health-card">
+      <div class="icon">🚶</div>
+      <h3>Motion</h3>
+      <div class="value">
+        <span id="motion">Normal</span>
+      </div>
+      <p id="motionStatus">No fall detected</p>
+    </div>
+
+  </section>
+
+
+  <!-- ECG -->
+  <section class="panel">
+
+    <div class="panel-header">
+      <div>
+        <h2>🫀 Live ECG Monitoring</h2>
+        <p>Electrocardiogram waveform</p>
+      </div>
+
+      <span class="live">
+        ● LIVE
+      </span>
+    </div>
+
+    <div class="ecg-container">
+      <canvas id="ecgChart"></canvas>
+    </div>
+
+  </section>
+
+
+  <!-- GPS + Emergency -->
+  <section class="two-column">
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>📍 Patient Location</h2>
+      </div>
+
+      <div class="location-data">
+
+        <div>
+          <span>Latitude</span>
+          <strong id="latitude">20.5937</strong>
+        </div>
+
+        <div>
+          <span>Longitude</span>
+          <strong id="longitude">78.9629</strong>
+        </div>
+
+        <div>
+          <span>Satellites</span>
+          <strong id="satellites">7</strong>
+        </div>
+
+      </div>
+
+      <button class="map-button" onclick="openMap()">
+        🗺️ Open Location
+      </button>
+    </div>
+
+
+    <div class="panel emergency-contacts">
+
+      <div class="panel-header">
+        <h2>🚨 Emergency Contacts</h2>
+      </div>
+
+      <div class="contact">
+        <div class="contact-icon">👨‍👩‍👦</div>
+        <div>
+          <strong>Family</strong>
+          <p id="familyNumber">+91 XXXXXXXXXX</p>
+        </div>
+        <button onclick="callNumber('tel:+91XXXXXXXXXX')">Call</button>
+      </div>
+
+
+      <div class="contact">
+        <div class="contact-icon">👨‍⚕️</div>
+        <div>
+          <strong>Doctor</strong>
+          <p id="doctorNumber">+91 XXXXXXXXXX</p>
+        </div>
+        <button onclick="callNumber('tel:+91XXXXXXXXXX')">Call</button>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- Health History -->
+  <section class="panel">
+
+    <div class="panel-header">
+      <div>
+        <h2>📊 Health History</h2>
+        <p>Recent patient readings</p>
+      </div>
+
+      <button class="clear-btn" onclick="clearHistory()">
+        Clear
+      </button>
+    </div>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>BPM</th>
+            <th>SpO₂</th>
+            <th>Temperature</th>
+            <th>Motion</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody id="historyTable">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- Medicine -->
+  <section class="panel medicine">
+
+    <div class="panel-header">
+      <div>
+        <h2>💊 Medicine Reminder</h2>
+        <p>Patient medication schedule</p>
+      </div>
+    </div>
+
+    <div class="medicine-form">
+
+      <input
+        type="text"
+        id="medicineName"
+        placeholder="Medicine name"
+      >
+
+      <input
+        type="time"
+        id="medicineTime"
+      >
+
+      <button onclick="addMedicine()">
+        + Add Medicine
+      </button>
+
+    </div>
+
+    <div id="medicineList"></div>
+
+  </section>
+
+
+  <!-- Safety -->
+  <section class="warning">
+
+    <h3>⚠️ Important</h3>
+
+    <p>
+      This website is intended for health monitoring and emergency
+      assistance. It is not a substitute for professional medical
+      diagnosis or treatment.
+    </p>
+
+    <p>
+      If the patient has severe chest pain, difficulty breathing,
+      fainting or other serious symptoms, seek emergency medical help
+      immediately.
+    </p>
+
+  </section>
+
+</main>
+
+
+<footer>
+  <p>© 2026 AayuNiriksh | Smart Health Monitoring System</p>
+</footer>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
